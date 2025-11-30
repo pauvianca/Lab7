@@ -9,50 +9,180 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 
+import androidx.appcompat.app.AlertDialog
+import android.widget.EditText
+
+import android.widget.Spinner
+import android.widget.ArrayAdapter
+import android.widget.AdapterView
+
 class DisplayFragment : Fragment() {
 
+    // Shared ViewModel used by all three fragments
     lateinit var viewModel: MyViewModel
+
+    // UI elements
     private lateinit var listView: ListView
+    private lateinit var spinnerFilter: Spinner
+
+    // Custom adapter for showing nice diary cards
     private lateinit var adapter: DiaryEntryAdapter
+
+    // items = list currently shown in the ListView
     private val items = mutableListOf<DiaryEntry>()
+
+    // allEntries = full list from the database (unfiltered master copy)
+    private var allEntries: List<DiaryEntry> = emptyList()
+
+    // Current filter mode (shows either all entries or only selected date)
+    private var filterMode: FilterMode = FilterMode.ALL
+
+    // Simple enum to describe the active filter
+    enum class FilterMode {
+        ALL,
+        SELECTED_DATE
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+
+        // Get the shared ViewModel from the Activity
         viewModel = activity?.run {
             ViewModelProvider(this)[MyViewModel::class.java]
         } ?: throw Exception("Invalid Activity")
 
+        // Inflate the layout for the Diary tab
         val view = inflater.inflate(R.layout.fragment_display, container, false)
 
+        // Find views in the layout
         listView = view.findViewById(R.id.lvEntries)
+        spinnerFilter = view.findViewById(R.id.spFilter)
+
+        // Use our custom adapter to show diary entries as cards
         adapter = DiaryEntryAdapter(requireContext(), items)
         listView.adapter = adapter
 
-        // Load from DB on start
+        // Set up the filter Spinner with two options
+        val options = listOf("All entries", "Selected date only")
+        val spinnerAdapter = ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_spinner_item,
+            options
+        )
+        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinnerFilter.adapter = spinnerAdapter
+
+        // Load all entries from the database once when the fragment is created
         viewModel.loadEntriesFromDb(requireContext())
 
-        // Observe LiveData and update list
-        viewModel.entries.observe(viewLifecycleOwner, { list ->
-            items.clear()
-            if (list != null) {
-                items.addAll(list)
-            }
-            adapter.notifyDataSetChanged()
-        })
+        // Observe the LiveData list of entries
+        // Whenever the DB changes (insert/update/delete), this will be called.
+        viewModel.entries.observe(viewLifecycleOwner) { list ->
+            // Keep a master copy of all entries
+            allEntries = list ?: emptyList()
+            // Apply the current filter (ALL or SELECTED_DATE)
+            applyFilter()
+        }
 
-        // Long press to delete
+        // When the user changes the filter option in the Spinner
+        spinnerFilter.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                v: View?,
+                position: Int,
+                id: Long
+            ) {
+                // Position 0 = "All entries", 1 = "Selected date only"
+                filterMode = when (position) {
+                    1 -> FilterMode.SELECTED_DATE
+                    else -> FilterMode.ALL
+                }
+                applyFilter()
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+                // No action needed
+            }
+        }
+
+        // Short tap on a diary entry = edit the text
+        listView.setOnItemClickListener { _, _, position, _ ->
+            // Safety check: ignore invalid positions
+            if (position < 0 || position >= items.size) return@setOnItemClickListener
+
+            val entry = items[position]
+
+            // Create an EditText pre-filled with the existing entry text
+            val editText = EditText(requireContext()).apply {
+                setText(entry.text)
+                setSelection(text.length)   // move cursor to the end
+                setPadding(32, 32, 32, 32)
+            }
+
+            // Show a simple AlertDialog with the EditText inside
+            AlertDialog.Builder(requireContext())
+                .setTitle("Edit entry")
+                .setView(editText)
+                .setPositiveButton("Save") { _, _ ->
+                    val newText = editText.text.toString()
+                    if (newText.isNotBlank()) {
+                        // Update the entry in the database via the ViewModel
+                        viewModel.updateEntryInDb(requireContext(), entry.id, newText)
+                        Toast.makeText(requireContext(), "Entry updated", Toast.LENGTH_SHORT).show()
+                    } else {
+                        Toast.makeText(requireContext(), "Text cannot be empty", Toast.LENGTH_SHORT).show()
+                    }
+                }
+                .setNegativeButton("Cancel", null)
+                .show()
+        }
+
+        // Long press on a diary entry = delete it
         listView.setOnItemLongClickListener { _, _, position, _ ->
+            // Safety check: ignore invalid positions
             if (position < 0 || position >= items.size) return@setOnItemLongClickListener true
 
             val entryToDelete = items[position]
+            // Ask ViewModel to delete from DB and refresh list
             viewModel.deleteEntryFromDb(requireContext(), entryToDelete.id)
             Toast.makeText(requireContext(), "Entry deleted", Toast.LENGTH_SHORT).show()
             true
         }
 
         return view
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // When we come back to this tab (e.g. after changing date on Tab 1),
+        // re-apply the filter so that "Selected date only" uses the latest date.
+        applyFilter()
+    }
+
+    // This function decides what should be shown in the ListView
+    // based on the current filterMode and the latest selected date.
+    private fun applyFilter() {
+        // Clear the current displayed items
+        items.clear()
+
+        when (filterMode) {
+            FilterMode.ALL -> {
+                // Show all entries from the master list
+                items.addAll(allEntries)
+            }
+            FilterMode.SELECTED_DATE -> {
+                // Only show entries whose date matches the selected date in the ViewModel
+                val selectedDate = viewModel.selectedDate.value
+                if (!selectedDate.isNullOrBlank()) {
+                    items.addAll(allEntries.filter { it.date == selectedDate })
+                }
+            }
+        }
+
+        // Tell the adapter that the data has changed so the UI will refresh
+        adapter.notifyDataSetChanged()
     }
 }

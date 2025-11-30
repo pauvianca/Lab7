@@ -87,6 +87,18 @@ class MyViewModel : ViewModel() {
         currentText.value = ""
     }
 
+    fun updateEntryInDb(context: Context, id: Long, newText: String) {
+        if (newText.isBlank()) return
+
+        val adapter = DiaryDatabaseAdapter(context).open()
+        adapter.updateEntry(id, newText)
+        adapter.close()
+
+        // reload from DB to keep LiveData in sync
+        loadEntriesFromDb(context)
+    }
+
+
     fun deleteEntryFromDb(context: Context, id: Long) {
         val adapter = DiaryDatabaseAdapter(context).open()
         adapter.deleteEntry(id)

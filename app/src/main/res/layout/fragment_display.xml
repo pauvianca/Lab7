@@ -16,6 +16,14 @@
         android:fontFamily="sans-serif"
         android:layout_marginBottom="12dp" />
 
+    <Spinner
+        android:id="@+id/spFilter"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        android:background="@color/card_light"
+        android:spinnerMode="dropdown" />
+
     <ListView
         android:id="@+id/lvEntries"
         android:layout_width="match_parent"

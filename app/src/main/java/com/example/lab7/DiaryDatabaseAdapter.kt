@@ -50,4 +50,17 @@ class DiaryDatabaseAdapter(context: Context) {
             arrayOf(id.toString())
         )
     }
+
+    fun updateEntry(id: Long, newText: String): Int {
+        val values = ContentValues().apply {
+            put(DiaryDatabaseHelper.COL_TEXT, newText)
+        }
+        return db!!.update(
+            DiaryDatabaseHelper.TABLE_NAME,
+            values,
+            "${DiaryDatabaseHelper.COL_ID} = ?",
+            arrayOf(id.toString())
+        )
+    }
+
 }
