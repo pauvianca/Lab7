@@ -22,6 +22,10 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.OutputStreamWriter
 
+import android.text.Editable
+import android.text.TextWatcher
+
+
 class DisplayFragment : Fragment() {
 
     // Shared ViewModel used by all three fragments
@@ -43,6 +47,13 @@ class DisplayFragment : Fragment() {
 
     // Current filter mode (shows either all entries or only selected date)
     private var filterMode: FilterMode = FilterMode.ALL
+
+    // Search box for filtering by text
+    private lateinit var etSearch: EditText
+
+    // Current search query text
+    private var currentSearchQuery: String = ""
+
 
     // Simple enum to describe the active filter
     enum class FilterMode {
@@ -68,6 +79,9 @@ class DisplayFragment : Fragment() {
         listView = view.findViewById(R.id.lvEntries)
         spinnerFilter = view.findViewById(R.id.spFilter)
         btnExport = view.findViewById(R.id.btnExport)
+        etSearch = view.findViewById(R.id.etSearch)
+
+
 
         // Use our custom adapter to show diary entries as cards
         adapter = DiaryEntryAdapter(requireContext(), items)
@@ -82,6 +96,24 @@ class DisplayFragment : Fragment() {
         )
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         spinnerFilter.adapter = spinnerAdapter
+
+        //Search box: filter entries by text as the user types
+        etSearch.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {
+                // Not used
+            }
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                // Update the current search query as the user types
+                currentSearchQuery = s?.toString() ?: ""
+                // Apply the current filter (ALL or SELECTED_DATE)
+                applyFilter()
+            }
+
+            override fun afterTextChanged(s: Editable?) {
+                // Not needed
+            }
+        })
 
         // Load all entries from the database once when the fragment is created
         viewModel.loadEntriesFromDb(requireContext())
@@ -194,26 +226,39 @@ class DisplayFragment : Fragment() {
     }
 
     // This function decides what should be shown in the ListView
-    // based on the current filterMode and the latest selected date.
+// based on the current filterMode, selected date, and search text.
     private fun applyFilter() {
         // Clear the current displayed items
         items.clear()
 
-        when (filterMode) {
+        // 1) Apply date-based filter first (ALL vs SELECTED_DATE)
+        val baseList: List<DiaryEntry> = when (filterMode) {
             FilterMode.ALL -> {
-                // Show all entries from the master list
-                items.addAll(allEntries)
+                allEntries
             }
             FilterMode.SELECTED_DATE -> {
-                // Only show entries whose date matches the selected date in the ViewModel
                 val selectedDate = viewModel.selectedDate.value
-                if (!selectedDate.isNullOrBlank()) {
-                    items.addAll(allEntries.filter { it.date == selectedDate })
+                if (selectedDate.isNullOrBlank()) {
+                    emptyList()
+                } else {
+                    allEntries.filter { it.date == selectedDate }
                 }
             }
         }
 
-        // Tell the adapter that the data has changed so the UI will refresh
+        // 2) Apply search filter on top (if any query text is entered)
+        val q = currentSearchQuery.trim().lowercase()
+        val filteredList = if (q.isEmpty()) {
+            baseList
+        } else {
+            baseList.filter { entry ->
+                entry.text.lowercase().contains(q) ||
+                        entry.date.lowercase().contains(q)
+            }
+        }
+
+        // 3) Populate items and refresh UI
+        items.addAll(filteredList)
         adapter.notifyDataSetChanged()
     }
 

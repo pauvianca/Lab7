@@ -17,12 +17,26 @@
         android:fontFamily="sans-serif"
         android:layout_marginBottom="8dp" />
 
+    <!-- Search box for filtering by text -->
+    <EditText
+        android:id="@+id/etSearch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Search in entries..."
+        android:layout_marginBottom="8dp"
+        android:padding="8dp"
+        android:background="@android:color/white"
+        android:inputType="text"
+        android:textColor="@color/text_dark"
+        android:textColorHint="@color/text_muted" />
+
     <!-- Filter spinner (All entries / Selected date only) -->
     <Spinner
         android:id="@+id/spFilter"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="12dp"
+        android:background="@color/picker_header_light"
         android:spinnerMode="dropdown" />
 
     <!-- Export button -->
