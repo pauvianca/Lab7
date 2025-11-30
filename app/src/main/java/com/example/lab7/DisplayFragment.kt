@@ -1,5 +1,6 @@
 package com.example.lab7
 
+import android.content.Intent
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -15,6 +16,11 @@ import android.widget.EditText
 import android.widget.Spinner
 import android.widget.ArrayAdapter
 import android.widget.AdapterView
+import android.widget.Button
+
+import java.io.File
+import java.io.FileOutputStream
+import java.io.OutputStreamWriter
 
 class DisplayFragment : Fragment() {
 
@@ -24,8 +30,9 @@ class DisplayFragment : Fragment() {
     // UI elements
     private lateinit var listView: ListView
     private lateinit var spinnerFilter: Spinner
+    private lateinit var btnExport: Button
 
-    // Custom adapter for showing nice diary cards
+    // Custom adapter for showing diary cards
     private lateinit var adapter: DiaryEntryAdapter
 
     // items = list currently shown in the ListView
@@ -60,6 +67,7 @@ class DisplayFragment : Fragment() {
         // Find views in the layout
         listView = view.findViewById(R.id.lvEntries)
         spinnerFilter = view.findViewById(R.id.spFilter)
+        btnExport = view.findViewById(R.id.btnExport)
 
         // Use our custom adapter to show diary entries as cards
         adapter = DiaryEntryAdapter(requireContext(), items)
@@ -108,6 +116,11 @@ class DisplayFragment : Fragment() {
             }
         }
 
+        // Export button: write all diary entries to a text file
+        btnExport.setOnClickListener {
+            exportDiaryToTextFile()
+        }
+
         // Short tap on a diary entry = edit the text
         listView.setOnItemClickListener { _, _, position, _ ->
             // Safety check: ignore invalid positions
@@ -140,15 +153,33 @@ class DisplayFragment : Fragment() {
                 .show()
         }
 
-        // Long press on a diary entry = delete it
+        // Long press on a diary entry = show options (Share / Delete)
         listView.setOnItemLongClickListener { _, _, position, _ ->
             // Safety check: ignore invalid positions
             if (position < 0 || position >= items.size) return@setOnItemLongClickListener true
 
-            val entryToDelete = items[position]
-            // Ask ViewModel to delete from DB and refresh list
-            viewModel.deleteEntryFromDb(requireContext(), entryToDelete.id)
-            Toast.makeText(requireContext(), "Entry deleted", Toast.LENGTH_SHORT).show()
+            val entry = items[position]
+
+            // Dialog with options instead of deleting immediately
+            val options = arrayOf("Share entry", "Delete entry", "Cancel")
+            AlertDialog.Builder(requireContext())
+                .setTitle("Entry options")
+                .setItems(options) { dialog, which ->
+                    when (which) {
+                        0 -> { // Share
+                            shareEntry(entry)
+                        }
+                        1 -> { // Delete
+                            viewModel.deleteEntryFromDb(requireContext(), entry.id)
+                            Toast.makeText(requireContext(), "Entry deleted", Toast.LENGTH_SHORT).show()
+                        }
+                        else -> {
+                            dialog.dismiss()
+                        }
+                    }
+                }
+                .show()
+
             true
         }
 
@@ -184,5 +215,66 @@ class DisplayFragment : Fragment() {
 
         // Tell the adapter that the data has changed so the UI will refresh
         adapter.notifyDataSetChanged()
+    }
+
+    // Share a single diary entry using an implicit Intent (ACTION_SEND)
+    private fun shareEntry(entry: DiaryEntry) {
+        // Format the text we want to share
+        val shareText = "Date: ${entry.date}\n\n${entry.text}"
+
+        val sendIntent = Intent().apply {
+            action = Intent.ACTION_SEND
+            putExtra(Intent.EXTRA_SUBJECT, "Diary entry on ${entry.date}")
+            putExtra(Intent.EXTRA_TEXT, shareText)
+            type = "text/plain"
+        }
+
+        // Use a chooser so the user can pick Messages, Gmail, Notes, etc.
+        val chooser = Intent.createChooser(sendIntent, "Share diary entry via")
+        startActivity(chooser)
+    }
+
+    //  Export all diary entries to a text file in the app's external files directory
+    private fun exportDiaryToTextFile() {
+        if (allEntries.isEmpty()) {
+            Toast.makeText(requireContext(), "No entries to export", Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        try {
+            // Use the app's private external storage directory (no extra permission needed)
+            val dir = requireContext().getExternalFilesDir(null)
+            val file = File(dir, "diary_export.txt")
+
+            val fos = FileOutputStream(file)
+            val writer = OutputStreamWriter(fos)
+
+            // Write all entries in a simple readable format
+            allEntries.forEachIndexed { index, entry ->
+                writer.write("Entry ${index + 1}\n")
+                writer.write("Date: ${entry.date}\n")
+                writer.write(entry.text)
+                writer.write("\n\n------------------------------\n\n")
+            }
+
+            writer.flush()
+            writer.close()
+            fos.close()
+
+            // Show the path so user (and the marker) know where the file went
+            Toast.makeText(
+                requireContext(),
+                "Diary exported to:\n${file.absolutePath}",
+                Toast.LENGTH_LONG
+            ).show()
+
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Toast.makeText(
+                requireContext(),
+                "Error exporting diary: ${e.message}",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
     }
 }

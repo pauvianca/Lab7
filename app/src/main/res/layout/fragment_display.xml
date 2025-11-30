@@ -6,24 +6,34 @@
     android:orientation="vertical"
     android:padding="24dp">
 
+    <!-- Small hint at the top -->
     <TextView
         android:id="@+id/tvHint"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Saved entries (long press to delete)"
+        android:text="Tap to edit, long press for options"
         android:textColor="@color/text_muted"
         android:textSize="14sp"
         android:fontFamily="sans-serif"
-        android:layout_marginBottom="12dp" />
+        android:layout_marginBottom="8dp" />
 
+    <!-- Filter spinner (All entries / Selected date only) -->
     <Spinner
         android:id="@+id/spFilter"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="12dp"
-        android:background="@color/card_light"
         android:spinnerMode="dropdown" />
 
+    <!-- Export button -->
+    <Button
+        android:id="@+id/btnExport"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Export diary to text file"
+        android:layout_marginBottom="12dp" />
+
+    <!-- ListView fills ALL remaining space and scrolls -->
     <ListView
         android:id="@+id/lvEntries"
         android:layout_width="match_parent"
