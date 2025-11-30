@@ -5,21 +5,24 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#3700B3"
-        android:elevation="6dp" />
+        android:background="@color/bg_navy"
+        android:elevation="4dp"
+        app:titleTextColor="@color/text_light" />
 
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/tab_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="#3700B3"
-        android:elevation="6dp"
-        android:minHeight="?attr/actionBarSize"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar" />
+        android:background="@color/bg_navy"
+        android:elevation="4dp"
+        app:tabIndicatorColor="@color/accent_peach"
+        app:tabSelectedTextColor="@color/text_light"
+        app:tabTextColor="@color/text_muted" />
 
     <androidx.viewpager2.widget.ViewPager2
         android:id="@+id/pager"

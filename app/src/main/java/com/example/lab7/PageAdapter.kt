@@ -11,9 +11,10 @@ class PageAdapter(fa: FragmentActivity, private val mNumOfTabs: Int) :
 
     override fun createFragment(position: Int): Fragment {
         return when (position) {
-            0 -> Page1Fragment()
-            1 -> Page2Fragment()
-            else -> Page1Fragment()
+            0 -> DateFragment()
+            1 -> EntryFragment()
+            2 -> DisplayFragment()
+            else -> DateFragment()
         }
     }
 }

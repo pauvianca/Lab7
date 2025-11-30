@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_navy">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="top|center_horizontal"
+        android:paddingLeft="24dp"
+        android:paddingTop="24dp"
+        android:paddingRight="24dp"
+        android:paddingBottom="48dp">
+
+        <!-- Card container -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@color/card_light"
+            android:padding="24dp">
+
+            <!-- Small label -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Choose a date"
+                android:textColor="@color/text_muted"
+                android:textSize="14sp"
+                android:fontFamily="sans-serif" />
+
+            <!-- Selected date text -->
+            <TextView
+                android:id="@+id/tvSelectedDate"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                android:layout_marginBottom="16dp"
+                android:fontFamily="sans-serif-medium"
+                android:text="Selected date: (none yet)"
+                android:textColor="@color/text_light"
+                android:textSize="18sp" />
+
+            <!-- Date picker -->
+            <DatePicker
+                android:id="@+id/datePicker"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="24dp"
+                android:background="@color/picker_light"
+                android:calendarViewShown="true"
+                android:spinnersShown="true"
+                android:headerBackground="@color/accent_lavender"
+                android:dayOfWeekBackground="@color/accent_lavender" />
+
+            <!-- Use date button -->
+            <Button
+                android:id="@+id/btnSetDate"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="4dp"
+                android:backgroundTint="@color/accent_peach"
+                android:elevation="2dp"
+                android:fontFamily="sans-serif-medium"
+                android:paddingTop="12dp"
+                android:paddingBottom="12dp"
+                android:text="Use this date"
+                android:textAllCaps="false"
+                android:textColor="@color/bg_navy"
+                android:textSize="16sp" />
+        </LinearLayout>
+
+    </LinearLayout>
+</ScrollView>

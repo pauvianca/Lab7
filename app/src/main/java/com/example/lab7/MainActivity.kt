@@ -17,16 +17,19 @@ class MainActivity : AppCompatActivity() {
         setSupportActionBar(toolbar)
 
         val tabLayout = findViewById<TabLayout>(R.id.tab_layout)
-        tabLayout.addTab(tabLayout.newTab().setText("Page 1"))
-        tabLayout.addTab(tabLayout.newTab().setText("Page 2"))
-        tabLayout.tabGravity = TabLayout.GRAVITY_FILL
-
         val viewPager = findViewById<ViewPager2>(R.id.pager)
-        val adapter = PageAdapter(this, 2)
+
+
+        val adapter = PageAdapter(this, 3)
         viewPager.adapter = adapter
 
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
-            tab.text = "Page " + (position + 1)
+            tab.text = when (position) {
+                0 -> "Date"
+                1 -> "Entry"
+                2 -> "Diary"
+                else -> "Page"
+            }
         }.attach()
     }
 }

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bg_navy"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:padding="24dp">
+
+    <!-- Card container -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@color/card_light"
+        android:padding="24dp"
+        android:layout_margin="8dp">
+
+        <!-- Small label -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Write your diary entry"
+            android:textColor="@color/text_muted"
+            android:textSize="14sp"
+            android:fontFamily="sans-serif" />
+
+        <!-- Date text -->
+        <TextView
+            android:id="@+id/tvEntryDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Date: (please select on first tab)"
+            android:textColor="@color/text_dark"
+            android:textSize="16sp"
+            android:fontFamily="sans-serif-medium"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Diary text box -->
+        <EditText
+            android:id="@+id/etDiaryText"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:hint="Today I feel..."
+            android:gravity="top|start"
+            android:padding="12dp"
+            android:minLines="6"
+            android:background="@android:color/white"
+            android:textColor="@color/text_dark"
+            android:textColorHint="@color/text_muted"
+            android:inputType="textMultiLine"
+            android:fontFamily="sans-serif"
+            android:layout_marginBottom="16dp" />
+
+        <!-- Buttons row -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="2">
+
+            <!-- Clear button (secondary) -->
+            <Button
+                android:id="@+id/btnClear"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Clear"
+                android:textAllCaps="false"
+                android:textColor="@color/accent_lavender"
+                android:backgroundTint="@android:color/white"
+                android:fontFamily="sans-serif-medium"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp" />
+
+            <!-- Save button (primary) -->
+            <Button
+                android:id="@+id/btnSave"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginStart="12dp"
+                android:text="Save entry"
+                android:textAllCaps="false"
+                android:textColor="@color/bg_navy"
+                android:backgroundTint="@color/accent_peach"
+                android:fontFamily="sans-serif-medium"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp" />
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>

@@ -1,5 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
+
+    <!-- added colors for aesthetics -->
+    <color name="bg_navy">#2D3250</color>        <!-- main background -->
+    <color name="card_purple">#424769</color>   <!-- card / panel -->
+    <color name="card_light">#BFC3D9</color>      <!--  lighter card bg -->
+    <color name="picker_light">#E6E8F2</color>    <!--  DatePicker bg -->
+    <color name="picker_header">#D8DCEE</color>   <!-- header bg -->
+    <color name="text_dark">#2F2F2F</color>       <!-- Good readable dark text -->
+    <color name="accent_peach">#F9B17A</color>  <!-- buttons / highlights -->
+    <color name="accent_lavender">#676F9D</color> <!-- subtle accents -->
+    <color name="text_light">#FFFFFF</color>    <!-- main light text -->
+    <color name="text_muted">#BFC3D9</color>    <!-- softer label text -->
+    <color name="picker_bg_light">#F4F4F8</color>        <!-- light grey background -->
+    <color name="picker_header_light">#D7D9E5</color>    <!-- light lavender -->
+    <color name="picker_text_dark">#2D3250</color>       <!-- dark navy for contrast -->
+
+
 </resources>
