@@ -5,19 +5,42 @@ import android.content.Context
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 
+/**
+ * Small helper / wrapper around DiaryDatabaseHelper
+ *
+ * Responsibilites:
+ * - open/close the SQLiteDatabase
+ * - provide simple functions to insert / query / update / delete entries
+ *
+ * All higher-level logic stays in MyViewModel and the Fragments
+ */
+
 class DiaryDatabaseAdapter(context: Context) {
 
     private val dbHelper = DiaryDatabaseHelper(context)
     private var db: SQLiteDatabase? = null
 
+    /**
+     * Open the database for read/write operations.
+     * Returns this so we can chain calls:
+     *      val adapter = DiaryDatabaseAdapter(context).open()
+     */
     fun open(): DiaryDatabaseAdapter {
         db = dbHelper.writableDatabase
         return this
     }
 
+    /**
+     * Close the helper and free DB resources.
+     */
     fun close() {
         dbHelper.close()
     }
+
+    /**
+     * Insert a new diary entry (Data + text )
+     * Returns the ID of the newly inserted row.
+     */
 
     fun insertEntry(date: String, text: String): Long {
         val values = ContentValues().apply {
@@ -27,6 +50,10 @@ class DiaryDatabaseAdapter(context: Context) {
         return db!!.insert(DiaryDatabaseHelper.TABLE_NAME, null, values)
     }
 
+    /**
+     * Return a Cursor over all diary entries, newest first.
+     * The ViewModel converts this Cursor into a list of DiaryEntry objects.
+     */
     fun getAllEntries(): Cursor {
         return db!!.query(
             DiaryDatabaseHelper.TABLE_NAME,
@@ -43,6 +70,11 @@ class DiaryDatabaseAdapter(context: Context) {
         )
     }
 
+    /**
+     * Delete a single diary entry by id.
+     * Returns the number of rows removed ( 0 or 1)
+     */
+
     fun deleteEntry(id: Long): Int {
         return db!!.delete(
             DiaryDatabaseHelper.TABLE_NAME,
@@ -50,6 +82,11 @@ class DiaryDatabaseAdapter(context: Context) {
             arrayOf(id.toString())
         )
     }
+
+    /**
+     * Update the diary text for a given entry id.
+     * Returns the number of rows affected ( 0 or 1)
+     */
 
     fun updateEntry(id: Long, newText: String): Int {
         val values = ContentValues().apply {

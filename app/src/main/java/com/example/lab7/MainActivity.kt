@@ -11,6 +11,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Main layout contains a Toolbar + TabLayout + ViewPager2
         setContentView(R.layout.activity_main)
 
         val toolbar = findViewById<Toolbar>(R.id.toolbar)
@@ -19,10 +21,11 @@ class MainActivity : AppCompatActivity() {
         val tabLayout = findViewById<TabLayout>(R.id.tab_layout)
         val viewPager = findViewById<ViewPager2>(R.id.pager)
 
-
+    // ViewPager2 adapter holds the three fragments (Date, Entry, Diary)
         val adapter = PageAdapter(this, 3)
         viewPager.adapter = adapter
 
+        // Attach TabLayout to ViewPager2 and set tab titles
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
             tab.text = when (position) {
                 0 -> "Date"

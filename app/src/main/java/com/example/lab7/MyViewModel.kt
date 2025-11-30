@@ -5,6 +5,15 @@ import androidx.lifecycle.ViewModel
 import android.content.Context
 import android.database.Cursor
 
+/**
+ * Shared ViewModel used by all three fragments.
+ *
+ * Responsibility:
+ * - hold the currently selected date
+ * - hold the current entry text (if needed)
+ * - expose a LiveData list of DiaryEntry objects
+ * - know how to load/save/update/delete entries in the SQLite DB
+ */
 
 data class DiaryEntry(
     val id: Long,
@@ -14,8 +23,14 @@ data class DiaryEntry(
 
 class MyViewModel : ViewModel() {
 
+    // Currently selected date from the Date tab.
     val selectedDate = MutableLiveData<String>()
+
+    // Optional: currently typed text, if user wants to share it
     val currentText = MutableLiveData<String>()
+
+    // List list of all entries from the database.
+    //DisplayFragment observes this to update the ListView.
     val entries = MutableLiveData<MutableList<DiaryEntry>>()
 
     init {
@@ -32,6 +47,11 @@ class MyViewModel : ViewModel() {
         currentText.value = text
     }
 
+    /**
+     * Legacy in-memory add (not used now because SQLite is used on this)
+     * but kept to show how this could support a non-persistent version
+     */
+
     fun addEntry() {
         val date = selectedDate.value ?: ""
         val text = currentText.value ?: ""
@@ -47,6 +67,10 @@ class MyViewModel : ViewModel() {
         currentText.value = ""
     }
 
+    /**
+     * Load all diary entries from the SQLite database
+     * and push them into the LiveData List
+     */
     fun loadEntriesFromDb(context: Context) {
         val adapter = DiaryDatabaseAdapter(context).open()
         val cursor: Cursor = adapter.getAllEntries()
@@ -73,6 +97,11 @@ class MyViewModel : ViewModel() {
         entries.value = list
     }
 
+    /**
+     * Save the current entry (selectedDate + currentText)
+     * into the SQLite database, then refresh the list.
+     */
+
     fun saveCurrentEntryToDb(context: Context) {
         val date = selectedDate.value ?: ""
         val text = currentText.value ?: ""
@@ -86,6 +115,10 @@ class MyViewModel : ViewModel() {
         loadEntriesFromDb(context)
         currentText.value = ""
     }
+
+    /**
+     * Delete an entry and reload from DB 
+     */
 
     fun updateEntryInDb(context: Context, id: Long, newText: String) {
         if (newText.isBlank()) return

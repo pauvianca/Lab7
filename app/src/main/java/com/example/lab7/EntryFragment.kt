@@ -12,6 +12,14 @@ import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 
+/**
+ * Second tab: allows the user to write a diary entry for the selected date.
+ *
+ * - Shows the current date from MyViewModel.
+ * - Lets the user type their diary text.
+ * - Auto-saves a draft using SharedPreferences on pause.
+ * - Saves completed entries into the SQLite database via MyViewModel.
+ */
 class EntryFragment : Fragment() {
 
     // Shared ViewModel used to communicate between fragments

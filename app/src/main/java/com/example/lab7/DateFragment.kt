@@ -11,6 +11,13 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import java.util.Calendar
 
+/**
+ * First tab: lets the user pick a date
+ *
+ * The selected date is stored in the shared MyViewModel so that
+ * the Entry and Diary tabs can react to it.
+ */
+
 class DateFragment : Fragment() {
 
     lateinit var viewModel: MyViewModel
@@ -20,17 +27,19 @@ class DateFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        // Get the shared ViewModel from the Activity
         viewModel = activity?.run {
             ViewModelProvider(this)[MyViewModel::class.java]
         } ?: throw Exception("Invalid Activity")
 
+        // Inflate UI for the data tab
         val view = inflater.inflate(R.layout.fragment_data, container, false)
 
         val tvSelectedDate = view.findViewById<TextView>(R.id.tvSelectedDate)
         val datePicker = view.findViewById<DatePicker>(R.id.datePicker)
         val btnSetDate = view.findViewById<Button>(R.id.btnSetDate)
 
-        // Show current stored date (if any)
+        // When the ViewModel's selectedDate changes, update the label.
         viewModel.selectedDate.observe(viewLifecycleOwner, { date ->
             if (!date.isNullOrBlank()) {
                 tvSelectedDate.text = "Selected date: $date"
@@ -49,6 +58,7 @@ class DateFragment : Fragment() {
             null
         )
 
+        // When the button is pressed, update the ViewModel with the chosen date.
         btnSetDate.setOnClickListener {
             val day = datePicker.dayOfMonth
             val month = datePicker.month + 1  // months are 0-based
